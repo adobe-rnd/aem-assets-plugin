@@ -1,4 +1,4 @@
-const  { decorateIcons, loadScript, loadCSS } = await import(`${window.hlx.codeBasePath}/scripts/aem.js`);
+const { decorateIcons, loadScript, loadCSS } = await import(`${window.hlx.codeBasePath}/scripts/aem.js`);
 
 const VIDEO_JS_SCRIPT = '/blocks/video/videojs/video.min.js';
 const VIDEO_JS_CSS = '/blocks/video/videojs/video-js.min.css';

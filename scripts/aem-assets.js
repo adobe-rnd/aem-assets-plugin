@@ -1,7 +1,3 @@
-'use strict';
-
-const { createOptimizedPicture: libCreateOptimizedPicture } = await import(`${window.hlx.codeBasePath}/scripts/aem.js`);
-
 /**
  * Gets the extension of a URL.
  * @param {string} url The URL
@@ -68,6 +64,25 @@ function appendQueryParams(url, params) {
 }
 
 /**
+ * Loads a CSS file.
+ * @param {string} href URL to the CSS file
+ */
+async function loadCSS(href) {
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector(`head > link[href="${href}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.append(link);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
  * Creates an optimized picture element for an image.
  * If the image is not an absolute URL, it will be passed to libCreateOptimizedPicture.
  * @param {string} src The image source URL
@@ -78,11 +93,6 @@ function appendQueryParams(url, params) {
  *
  */
 export function createOptimizedPicture(src, alt = '', eager = false, breakpoints = [{ media: '(min-width: 600px)', width: '2000' }, { width: '750' }]) {
-  const isAbsoluteUrl = /^https?:\/\//i.test(src);
-
-  // Fallback to createOptimizedPicture if src is not an absolute URL
-  if (!isAbsoluteUrl) return libCreateOptimizedPicture(src, alt, eager, breakpoints);
-
   const url = new URL(src);
   const picture = document.createElement('picture');
   const { pathname } = url;
@@ -178,3 +188,52 @@ export function decorateImagesFromAlt(main) {
     }
   });
 }
+
+async function loadBlock(block) {
+  const status = block.dataset.blockStatus;
+  if (status !== 'loading' && status !== 'loaded') {
+    block.dataset.blockStatus = 'loading';
+    const { blockName } = block.dataset;
+    try {
+      let basePath = window.hlx.codeBasePath;
+      if (window.hlx.aemassets.codeBasePath
+        && window.hlx.aemassets.blocks.indexOf(blockName) !== -1) {
+        basePath = `${window.hlx.codeBasePath}/${window.hlx.aemassets.codeBasePath}`;
+      }
+      decorateExternalImages(block);
+      decorateImagesFromAlt(block);
+      const cssLoaded = loadCSS(`${basePath}/blocks/${blockName}/${blockName}.css`);
+      const decorationComplete = new Promise((resolve) => {
+        (async () => {
+          try {
+            const mod = await import(
+              `${basePath}/blocks/${blockName}/${blockName}.js`
+            );
+            if (mod.default) {
+              await mod.default(block);
+            }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(`failed to load module for ${blockName}`, error);
+          }
+          resolve();
+        })();
+      });
+      await Promise.all([cssLoaded, decorationComplete]);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(`failed to load block ${blockName}`, error);
+    }
+    block.dataset.blockStatus = 'loaded';
+  }
+  return block;
+}
+
+async function init() {
+  if (window.hlx.aemassets) {
+    const aem = await import(`${window.hlx.codeBasePath}/scripts/aem.js`);
+    aem.loadBlock = loadBlock;
+  }
+}
+
+init();
