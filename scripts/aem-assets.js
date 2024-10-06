@@ -189,7 +189,7 @@ export function decorateImagesFromAlt(main) {
   });
 }
 
-async function loadBlock(block) {
+export async function loadBlock(block) {
   const status = block.dataset.blockStatus;
   if (status !== 'loading' && status !== 'loaded') {
     block.dataset.blockStatus = 'loading';
@@ -198,7 +198,7 @@ async function loadBlock(block) {
       let basePath = window.hlx.codeBasePath;
       if (window.hlx.aemassets.codeBasePath
         && window.hlx.aemassets.blocks.indexOf(blockName) !== -1) {
-        basePath = `${window.hlx.codeBasePath}/${window.hlx.aemassets.codeBasePath}`;
+        basePath = `${window.hlx.codeBasePath}${window.hlx.aemassets.codeBasePath}`;
       }
       decorateExternalImages(block);
       decorateImagesFromAlt(block);
@@ -228,12 +228,3 @@ async function loadBlock(block) {
   }
   return block;
 }
-
-async function init() {
-  if (window.hlx.aemassets) {
-    const aem = await import(`${window.hlx.codeBasePath}/scripts/aem.js`);
-    aem.loadBlock = loadBlock;
-  }
-}
-
-init();
