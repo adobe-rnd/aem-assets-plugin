@@ -1,0 +1,34 @@
+.block.secure-assets > div {
+  display: flex;
+  gap: 2rem;
+}
+
+.block.secure-assets img {
+  width: 43rem;
+}
+
+/**
+  * Login form related CSS
+**/
+.login-form-wrapper {
+  .login-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    input {
+      margin-top: 0.8rem;
+    }
+  }
+
+  .reload-btn {
+    margin: 0;
+  }
+}
