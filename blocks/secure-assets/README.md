@@ -1,0 +1,39 @@
+# Secure Asset Block
+
+## Feature Overview: 
+
+In standard image transformation from <a> tags to <picture> tags in EDS through [external sources](https://github.com/hlxsites/franklin-assets-selector/blob/ext-images/EXTERNAL_IMAGES.md), the presence of secure assets coming from DM with OpenAPI on the page isn't considered, treating all assets as if they are public. This block addresses that gap by embedding a delivery token while rendering secure assets.
+
+## Advantages: 
+
+This block allows content authors to embed secure assets directly into their EDS pages. It can also be extended to facilitate campaigns like member-exclusive deals by using placeholder images to prompt unauthorized users to become members.
+
+## Functionality: 
+
+The block reduces overhead by filtering secure assets using HEAD requests into a local map before making reload calls to DM OpenAPI. When a user provides a valid role or principal, secured images are refreshed accordingly, while public images remain unaffected.
+
+## Usages
+
+### Section Metadata Semantics
+
+* `Placeholder Image` : Set any public image reference or base64 encoded image.
+* `Include principal form` : Use this to include/exclude the default user input form for user principal. (Default : false)
+* `Scan Full Page` : Use this to scan the full page instead of just the block markup to identify and act upon secure assets. (Default : false)
+
+## Knowledge Base
+
+### How the asset are identifed as secure?
+
+It checks for 404 response status code with the help of HEAD HTTP request to identify any secure asset in DM with OpenAPI.
+
+### How to update the fallback image?
+
+Just update the section metadata with property - `Placeholder Image` with desired value
+
+### How does a content author get the URL of a secure asset?
+
+Author can select the target asset through Asset picker.
+
+### How is the asset actually marked ‘secure’ on AEM author?
+
+Can be set using asset property page followed by editing roles (aka dam:roles)
