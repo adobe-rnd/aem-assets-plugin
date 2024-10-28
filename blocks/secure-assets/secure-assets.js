@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
-import { SignJWT } from 'https://cdnjs.cloudflare.com/ajax/libs/jose/5.2.3/jwt/sign.js';
-
 const securedImages = [];
 let placeholderImg;
 
@@ -30,8 +27,22 @@ async function isSecureAsset(src) {
   return isSecure;
 }
 
-async function reloadImage(img, token) {
-  await fetch(img.getAttribute('data-src'), {
+/**
+ * Replace the image with placeholder image in case of error
+ */
+function handleImageError(img) {
+  img.src = placeholderImg;
+  img.closest('picture').querySelectorAll('source').forEach((source) => {
+    source.srcset = placeholderImg;
+  });
+}
+
+/**
+ * Try to restore the original image using the token
+ * and fallback to placeholder image in case of error
+ */
+function restoreOriginalImage(img, token) {
+  fetch(img.getAttribute('data-original-src'), {
     headers: {
       'x-asset-delivery-token': token,
     },
@@ -47,83 +58,12 @@ async function reloadImage(img, token) {
       };
       reader.readAsDataURL(await resp.blob());
     } else {
-      img.src = placeholderImg;
-      img.closest('picture').querySelectorAll('source').forEach((source) => {
-        source.srcset = placeholderImg;
-      });
+      handleImageError(img);
     }
   });
 }
 
-function generateJwtAndReloadImg(img, secretKey, userRoles) {
-  // Define the secret key
-  const secret = new TextEncoder().encode(secretKey);
-
-  // generate expiry for 24 hours
-  const timeNow = new Date().getTime();
-  const expiry24hrs = new Date(timeNow + 24 * 60 * 60 * 1000).toISOString();
-
-  // Define the JWT header
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT',
-  };
-
-  // Define the JWT claims
-  const jwtClaims = {
-    roles: userRoles,
-    expiry: expiry24hrs,
-  };
-
-  // new jose.SignJWT(jwtClaims)
-  new SignJWT(jwtClaims)
-    .setProtectedHeader(header)
-    .sign(secret)
-    .then((token) => {
-      reloadImage(img, token);
-    });
-}
-
-function refreshSecuredImages(principalName) {
-  securedImages.forEach((img) => {
-    const url = new URL(img.getAttribute('data-src'));
-    const secretKey = url.host.replace('delivery', 'cm').replace('-cmstg.adobeaemcloud.com', '').replace('.adobeaemcloud.com', '');
-    generateJwtAndReloadImg(img, secretKey, principalName);
-  });
-}
-
-function appendLoginForm() {
-  if (document.querySelector('.secure-assets-container .login-form-wrapper')) {
-    return;
-  }
-  const loginForm = `
-    <form id='login-form' class='login-form'>
-      <div class='input-wrapper'>
-        <span>
-          <h6>Enter Principal Name : </h6>
-        </span>
-        <input type='text' name='username' placeholder='Username'>
-      </div>
-      <button class='button reload-btn' type='submit'>Reload Images!</button>
-    </form>
-  `;
-  const formWrapper = document.createElement('div');
-  formWrapper.className = 'login-form-wrapper';
-  formWrapper.innerHTML = loginForm;
-  document.querySelector('.secure-assets-container')?.prepend(formWrapper);
-  formWrapper.querySelector('.reload-btn').addEventListener('click', async (e) => {
-    e.preventDefault();
-    const username = formWrapper.querySelector('input[name=\'username\']').value;
-    refreshSecuredImages(username);
-  });
-}
-
 export default function decorate(block) {
-  // Remove or Replace this as per Project usecase
-  if (document.querySelector('.secure-assets-container')?.getAttribute('data-include-principal-form') === 'true') {
-    appendLoginForm();
-  }
-
   placeholderImg = document.querySelector('.secure-assets-container')?.getAttribute('data-placeholder-image');
 
   let images;
@@ -136,17 +76,33 @@ export default function decorate(block) {
 
   images.forEach(async (img) => {
     const src = img.getAttribute('src');
-    if (isDMOpenAPIUrl(src) && await isSecureAsset(src)) {
+    if (!securedImages.includes(img) && img.getAttribute('data-is-public') === 'true'
+        && isDMOpenAPIUrl(src) && await isSecureAsset(src)) {
       // Identify all secure images and push them into securedImages map
       securedImages.push(img);
 
-      img.setAttribute('data-src', src);
+      // capture the original src and replace the src with placeholder image
+      img.setAttribute('data-original-src', src);
       img.src = placeholderImg;
       img.closest('picture').querySelectorAll('source').forEach((source) => {
         // capture the original src and replace the src with placeholder image
-        source.setAttribute('data-src', source.srcset);
+        source.setAttribute('data-original-src', source.srcset);
         source.srcset = placeholderImg;
       });
+    } else {
+      // required to avoid re-processing the same image whe multiple blocks are there on Page
+      img.setAttribute('data-is-public', 'true');
     }
+  });
+
+  // Listen for auth-token-available event to restore the original images
+  // Refer README.md for more details & examples
+  document.addEventListener('auth-token-available', (event) => {
+    const token = event.detail;
+    securedImages.forEach((img) => {
+      if (token) {
+        restoreOriginalImage(img, token);
+      }
+    });
   });
 }

@@ -17,7 +17,6 @@ The block reduces overhead by filtering secure assets using HEAD requests into a
 ### Section Metadata Semantics
 
 * `Placeholder Image` : Set any public image reference or base64 encoded image.
-* `Include principal form` : Use this to include/exclude the default user input form for user principal. (Default : false)
 * `Scan Full Page` : Use this to scan the full page instead of just the block markup to identify and act upon secure assets. (Default : false)
 
 ## Knowledge Base
@@ -37,3 +36,12 @@ Author can select the target asset through Asset picker.
 ### How is the asset actually marked ‘secure’ on AEM author?
 
 Can be set using asset property page followed by editing roles (aka dam:roles)
+
+### How to refresh images via passing auth token for secure assets
+
+The secure asset block listens to `auth-token-available` event to get the authentication token needed to fetch the secure images. A sample event with token valid till 10/27/2025 is illustrated below :
+```
+const customEvent = new CustomEvent('auth-token-available', { detail: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlcyI6ImFkbWluIiwiZXhwaXJ5IjoiMjAyNS0xMC0yOFQwMjozMzoyNC42NjhaIn0.El7r66ngrDXneNJWkLsLFQRESk-e4bhvDFHSoUJNo0k' });
+
+document.dispatchEvent(customEvent);
+```
