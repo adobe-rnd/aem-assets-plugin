@@ -76,7 +76,7 @@ export default function decorate(block) {
 
   images.forEach(async (img) => {
     const src = img.getAttribute('src');
-    if (!securedImages.includes(img) && img.getAttribute('data-is-public') === 'true'
+    if (!securedImages.includes(img) && img.getAttribute('data-is-public') !== 'true'
         && isDMOpenAPIUrl(src) && await isSecureAsset(src)) {
       // Identify all secure images and push them into securedImages map
       securedImages.push(img);
