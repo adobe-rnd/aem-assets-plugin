@@ -17,13 +17,16 @@ The block reduces overhead by filtering secure assets using HEAD requests into a
 ### Section Metadata Semantics
 
 * `Placeholder Image` : Set any public image reference or base64 encoded image.
-* `Scan Full Page` : Use this to scan the full page instead of just the block markup to identify and act upon secure assets. (Default : false)
 
 ## Knowledge Base
 
 ### How the asset are identifed as secure?
 
 It checks for 404 response status code with the help of HEAD HTTP request to identify any secure asset in DM with OpenAPI.
+
+### How to maintain a page score of ~100 on LHS with secure assets on the page?
+
+Identifying an asset as secure involves two requests within the block. The first, a HEAD request, determines if the asset is secure, followed by a request to render the secure asset's binary. This process can cause delays in LCP (Largest Contentful Paint), especially when numerous secure assets are present. To mitigate this, use the 'secure asset' block judiciously and only for specific use cases.
 
 ### How to update the fallback image?
 

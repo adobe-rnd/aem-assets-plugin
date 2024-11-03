@@ -2,7 +2,3 @@
   display: flex;
   gap: 2rem;
 }
-
-.block.secure-assets img {
-  width: 43rem;
-}

@@ -65,19 +65,11 @@ function restoreOriginalImage(img, token) {
 
 export default function decorate(block) {
   placeholderImg = document.querySelector('.secure-assets-container')?.getAttribute('data-placeholder-image');
-
-  let images;
-  if (document.querySelector('.secure-assets-container')?.getAttribute('data-scan-full-page')) {
-    // scan the whole page if asked for
-    images = document.querySelectorAll('img');
-  } else {
-    images = block.querySelectorAll('img');
-  }
+  const images = block.querySelectorAll('img');
 
   images.forEach(async (img) => {
     const src = img.getAttribute('src');
-    if (!securedImages.includes(img) && img.getAttribute('data-is-public') !== 'true'
-        && isDMOpenAPIUrl(src) && await isSecureAsset(src)) {
+    if (!securedImages.includes(img) && isDMOpenAPIUrl(src) && await isSecureAsset(src)) {
       // Identify all secure images and push them into securedImages map
       securedImages.push(img);
 
@@ -89,9 +81,6 @@ export default function decorate(block) {
         source.setAttribute('data-original-src', source.srcset);
         source.srcset = placeholderImg;
       });
-    } else {
-      // required to avoid re-processing the same image whe multiple blocks are there on Page
-      img.setAttribute('data-is-public', 'true');
     }
   });
 
