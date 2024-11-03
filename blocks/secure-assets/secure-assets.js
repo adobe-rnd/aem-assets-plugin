@@ -66,6 +66,7 @@ function restoreOriginalImage(img, token) {
 export default function decorate(block) {
   placeholderImg = document.querySelector('.secure-assets-container')?.getAttribute('data-placeholder-image');
   const images = block.querySelectorAll('img');
+  const authToken = localStorage.getItem('auth-token');
 
   images.forEach(async (img) => {
     const src = img.getAttribute('src');
@@ -75,12 +76,17 @@ export default function decorate(block) {
 
       // capture the original src and replace the src with placeholder image
       img.setAttribute('data-original-src', src);
-      img.src = placeholderImg;
-      img.closest('picture').querySelectorAll('source').forEach((source) => {
-        // capture the original src and replace the src with placeholder image
-        source.setAttribute('data-original-src', source.srcset);
-        source.srcset = placeholderImg;
-      });
+      if (authToken) {
+        // If auth token is already available in localStorage, restore the original image
+        restoreOriginalImage(img, authToken);
+      } else {
+        img.src = placeholderImg;
+        img.closest('picture').querySelectorAll('source').forEach((source) => {
+          // capture the original src and replace the src with placeholder image
+          source.setAttribute('data-original-src', source.srcset);
+          source.srcset = placeholderImg;
+        });
+      }
     }
   });
 
@@ -88,6 +94,7 @@ export default function decorate(block) {
   // Refer README.md for more details & examples
   document.addEventListener('auth-token-available', (event) => {
     const token = event.detail;
+    localStorage.setItem('auth-token', token);
     securedImages.forEach((img) => {
       if (token) {
         restoreOriginalImage(img, token);
