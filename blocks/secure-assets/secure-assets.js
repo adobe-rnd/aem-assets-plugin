@@ -63,6 +63,25 @@ function restoreOriginalImage(img, token) {
   });
 }
 
+/**
+ * checking if the JWT token is valid
+ */
+function isJWTTokenValid(token) {
+  let isValid = false;
+  try {
+    const [, payload] = token.split('.');
+    const decodedPayload = JSON.parse(atob(payload));
+    if (!decodedPayload.exp) {
+      isValid = (new Date(decodedPayload.expiry).getTime()) > Date.now();
+    } else {
+      isValid = decodedPayload.exp > (Date.now() / 1000);
+    }
+  } catch {
+    isValid = false;
+  }
+  return isValid;
+}
+
 export default function decorate(block) {
   placeholderImg = document.querySelector('.secure-assets-container')?.getAttribute('data-placeholder-image');
   const images = block.querySelectorAll('img');
@@ -76,7 +95,7 @@ export default function decorate(block) {
 
       // capture the original src and replace the src with placeholder image
       img.setAttribute('data-original-src', src);
-      if (authToken) {
+      if (authToken && isJWTTokenValid(authToken)) {
         // If auth token is already available in localStorage, restore the original image
         restoreOriginalImage(img, authToken);
       } else {
@@ -96,7 +115,7 @@ export default function decorate(block) {
     const token = event.detail;
     localStorage.setItem('auth-token', token);
     securedImages.forEach((img) => {
-      if (token) {
+      if (token && isJWTTokenValid(token)) {
         restoreOriginalImage(img, token);
       }
     });
