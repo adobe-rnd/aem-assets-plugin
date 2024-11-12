@@ -46,7 +46,7 @@ Here's typically how `scripts/aem-assets-plugin-support.js` would look:
 
 ```
 // The based path of the aem-assets-plugin code.
-const codeBasePath = `${window.hlx?.codeBasePath}/plugins/aem-assets-plugin`;
+const codeBasePath = `${window.hlx?.codeBasePath}/plugins/aem-assets-plugin.js`;
 
 // The blocks that are to be used from the aem-assets-plugin.
 const blocks = ['video'];
