@@ -39,7 +39,7 @@ function isExternalImage(element, externalImageMarker) {
 }
 
 /*
-  * Appends query params to a URL
+  * Appends query params to a URL. Only allows query params as per Assets Delivery API - https://adobe-aem-assets-delivery.redoc.ly/
   * @param {string} url The URL to append query params to
   * @param {object} params The query params to append
   * @returns {string} The URL with query params appended
@@ -50,8 +50,12 @@ function isExternalImage(element, externalImageMarker) {
 */
 function appendQueryParams(url, params) {
   const { searchParams } = url;
+  // only allow query params as per Assets Delivery API - https://adobe-aem-assets-delivery.redoc.ly/
+  const allowedParams = ['rotate', 'crop', 'flip', 'size', 'preferwebp', 'height', 'width', 'quality', 'smartcrop'];
   params.forEach((value, key) => {
-    searchParams.set(key, value);
+    if (allowedParams.includes(key)) {
+      searchParams.set(key, value);
+    }
   });
   url.search = searchParams.toString();
   return url.toString();
@@ -222,3 +226,11 @@ export async function loadBlock(block) {
   }
   return block;
 }
+
+// Create an object with the test functions
+const testFunctions = {
+  appendQueryParams,
+};
+
+// Export the object
+export { testFunctions };
