@@ -4,6 +4,8 @@ The Video Block module provides functionality to decorate video blocks on a webp
 
 Use videos as hero banner without affecting LHS. This block use poster image and delayed script loading to make rendering faster . 
 
+# How to Use 
+
 We also need to add the below line of code to delayed.js. 
 
 document.dispatchEvent(new Event('delayed-phase'));
