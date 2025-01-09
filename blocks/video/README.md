@@ -6,6 +6,6 @@ Use videos as hero banner without affecting LHS. This block use poster image and
 
 We also need to add the below line of code to delayed.js. 
 
-**document.dispatchEvent(new Event('delayed-phase'));
+document.dispatchEvent(new Event('delayed-phase'));
 
-Window.DELAYED_PHASE = true;**
+Window.DELAYED_PHASE = true;
