@@ -8,6 +8,8 @@ Use videos as hero banner without affecting LHS. This block use poster image and
 
 We also need to add the below line of code to delayed.js. 
 
-document.dispatchEvent(new Event('delayed-phase'));
+```document.dispatchEvent(new Event('delayed-phase'));```
 
-Window.DELAYED_PHASE = true;
+```Window.DELAYED_PHASE = true;``` 
+
+like this [delayed.js](https://github.com/hlxsites/franklin-assets-selector/blob/03a36748eb9f22869a2778ee93b10d63a19cd793/scripts/delayed.js#L1-L2)
