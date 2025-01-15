@@ -2,11 +2,11 @@
 
 ## Feature Overview: 
 
-In the standard image transformation from `<a>` tags to `<picture>` tags in EDS, as outlined in [external sources](https://github.com/hlxsites/franklin-assets-selector/blob/ext-images/EXTERNAL_IMAGES.md), smart crop assets from DM with OpenAPI were not considered. This resulted in all assets retaining their original image content, thus losing the point of focus when viewed especially on smaller devices. This newly added block addresses this gap by rendering the appropriate smart crop image that matches the viewport the window is rendered upon.
+In the standard image transformation from `<a>` tags to `<picture>` tags in EDS, as outlined in [external sources](https://github.com/hlxsites/franklin-assets-selector/blob/ext-images/EXTERNAL_IMAGES.md), smart crop assets from DM with OpenAPI were not considered. This resulted in all assets retaining their original image content, thus losing the point of focus when viewed especially on smaller devices. This newly added functionality addresses this gap by rendering the appropriate smart crop image that matches the viewport the window is rendered upon.
 
 ## Advantages: 
 
-This block enables content authors to embed smart crop assets directly into their EDS pages. It enhances user interaction on smaller screens by maintaining the focus point of the image, ensuring a consistently engaging viewing experience.
+This functionality enables content authors to embed smart crop assets directly into their EDS pages. It enhances user interaction on smaller screens by maintaining the focus point of the image, ensuring a consistently engaging viewing experience.
 
 ## Functionality: 
 
@@ -14,41 +14,24 @@ This block reduces overhead by rendering the appropriate smart crop asset variat
 
 ## Usages
 
-### Smart Crop Config file
-
-* For the block to be aware of all available smart crops, users need to create or update the configuration file located at `/blocks/smartcrop-assets/config.json`. A sample config is illustrated below:
-```
-{
-  "smartCrops" : {
-    "Small" : {
-      "minWidth": 0,
-      "maxWidth": 767
-    },
-    "Medium" : {
-      "minWidth": 768,
-      "maxWidth": 1023
-    },
-    "Large" : {
-      "minWidth": 1024,
-      "maxWidth": 9999
-    }
-  }
-}
-```
+The Image Smart crop usecase is defined in such a way that it can be very well integrated at any level including site, page, block or section level. All user need to define is to add required cooresponding meta tag or classname or section metadata with key as `dm-image-smartcrop` with value as `true`.
 
 ## Knowledge Base
 
 ### Where I need to define the available smart crops?
 
-Can edit/update the config at `/blocks/smartcrop-assets/config.json`
+For the project to be aware of all available smart crops, users need to make sure that `window.hlx.aemassets.smartCrops` is initialised with target smartcrop presets available options. 
+```
+window.hlx.aemassets.smartCrops = {
+    "Small": { minWidth: 0, maxWidth: 767 },
+    "Medium": { minWidth: 768, maxWidth: 1023 },
+    "Large": { minWidth: 1024, maxWidth: 9999 }
+  };
+```
 
-### What if a smart crop being listed in config.json is not availble with server?
+### What if any of the smart crops not availble with server?
 
 In that case, the image will appear as a broken link.
-
-### What if there is no best match from the list of smart crop from config.json?
-
-In that case, the current state of the image will be retained without making any request to smart crop.
 
 ### Are the smart crop name case-sensitive?
 
@@ -61,3 +44,27 @@ Users can create an Image Profile in the AEM author environment with the desired
 ### Why the copied asset from Asset Selector not showing any smart crops by default?
 
 Currently, it's not possible to get the smart crop references directly from the asset picker. Users need to obtain the base URL for any target asset. To get the smart crop variation, they must manually update the smart crop config file to match the presets defined in the Image Profile within the AEM author environment.
+
+### How to define samrtcrop rendering at Domain / website level?
+
+Use the head.html and add below entry -
+```
+<meta name="dm-image-smartcrop" content="true">
+```
+
+### How to define samrtcrop rendering at webpage level?
+
+In content authoring, add page metadata with key as `dm-image-smartcrop` and value as `true`
+
+### How to define samrtcrop rendering at Block level?
+
+Add the class `dm-image-smartcrop` to the block while content authoring and then simply call `decorateExternalImages(block)` like shown below - 
+```
+export default function decorate(block) {
+  decorateExternalImages(block);
+}
+```
+
+### How to define samrtcrop rendering at section level?
+
+In content authoring, add section metadata with key as `dm-image-smartcrop` and value as `true` and then explicitly call `decorateExternalImages(sectionElement);`

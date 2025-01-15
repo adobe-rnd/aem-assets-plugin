@@ -123,6 +123,69 @@ export function createOptimizedPicture(src, alt = '', eager = false, breakpoints
   return picture;
 }
 
+/**
+ * Creates an optimized picture element for an image
+ * leveraging samrtcrop config from 'window.hlx.aemassets.smartCrops'.
+ * @param {string} src The image source URL
+ * @param {string} alt The image alt text
+ * @param {boolean} eager Whether to load the image eagerly
+ * @param {object[]} breakpoints The breakpoints to use
+ * @returns {Element} The picture element
+ */
+export function createOptimizedPictureWithSmartcrop(src, alt = '', eager = false, breakpoints = []) {
+  const isAbsoluteUrl = /^https?:\/\//i.test(src);
+
+  // initialise breakpoint to project level smartcrop config unless needed to customise
+  const smartcropBreakpoints = breakpoints.length !== 0 ? breakpoints
+    : Object.entries(window.hlx.aemassets.smartCrops).map(
+      ([name, { minWidth, maxWidth }]) => ({
+        media: `(min-width: ${minWidth}px) and (max-width: ${maxWidth}px)`,
+        smartcrop: name,
+      }),
+    );
+
+  const url = isAbsoluteUrl ? new URL(src) : new URL(src, window.location.href);
+  const picture = document.createElement('picture');
+  const { pathname } = url;
+  const ext = pathname.substring(pathname.lastIndexOf('.') + 1);
+
+  // webp
+  smartcropBreakpoints.forEach((br) => {
+    const source = document.createElement('source');
+    if (br.media) source.setAttribute('media', br.media);
+    source.setAttribute('type', 'image/webp');
+    const searchParams = new URLSearchParams({ smartcrop: br.smartcrop, format: 'webply' });
+    source.setAttribute('srcset', appendQueryParams(url, searchParams));
+    picture.appendChild(source);
+  });
+
+  // fallback for non-webp
+  smartcropBreakpoints.forEach((br) => {
+    const searchParams = new URLSearchParams({ smartcrop: br.smartcrop, format: ext });
+    const source = document.createElement('source');
+    if (br.media) source.setAttribute('media', br.media);
+    source.setAttribute('srcset', appendQueryParams(url, searchParams));
+    picture.appendChild(source);
+  });
+
+  // append the default image eliminating smartcrop query param if present
+  const img = document.createElement('img');
+  img.setAttribute('loading', eager ? 'eager' : 'lazy');
+  img.setAttribute('alt', alt);
+  picture.appendChild(img);
+  url.searchParams.delete('smartcrop');
+  img.setAttribute('src', url.toString());
+
+  picture.classList.add('smartcrop-loaded');
+  return picture;
+}
+
+function hasDMImageSmartcropMeta() {
+  const metaTags = document.getElementsByTagName('meta');
+  const matchingMeta = Array.from(metaTags).find((meta) => meta.name === 'dm-image-smartcrop' && meta.content === 'true');
+  return !!matchingMeta;
+}
+
 /*
   * Decorates external images with a picture element
   * @param {Element} ele The element
@@ -132,11 +195,24 @@ export function createOptimizedPicture(src, alt = '', eager = false, breakpoints
   * decorateExternalImages(main, '//External Image//');
   */
 export function decorateExternalImages(ele, deliveryMarker) {
+  // check if smartcrop should be applied by checking page level
+  // meta tag or class attribute or section level data attribute
+  const renderImgSmartCrop = window.hlx?.aemassets?.smartCrops
+    && (hasDMImageSmartcropMeta() || ele.classList?.contains('dm-image-smartcrop')
+     || ele.getAttribute('data-dm-image-smartcrop') === 'true');
+
   const extImages = ele.querySelectorAll('a');
   extImages.forEach((extImage) => {
     if (isExternalImage(extImage, deliveryMarker)) {
       const extImageSrc = extImage.getAttribute('href');
       const extPicture = createOptimizedPicture(extImageSrc);
+
+      // except the samrtcrop param in <img>,
+      // query params are already copied to all source & img tags
+      if (renderImgSmartCrop) {
+        extImage.parentNode.replaceChild(extPicture, extImage);
+        return;
+      }
 
       /* copy query params from link to img */
       const extImageUrl = new URL(extImageSrc);
@@ -157,6 +233,19 @@ export function decorateExternalImages(ele, deliveryMarker) {
       extImage.parentNode.replaceChild(extPicture, extImage);
     }
   });
+
+  // This would potentially repalce all exisiting picture tag with smartcrop loaded picture tag
+  // without this check, it would not account for block level smartcrop flag
+  if (renderImgSmartCrop) {
+    const pictureTags = ele.querySelectorAll('picture');
+    pictureTags.forEach((picture) => {
+      if (picture.classList.contains('smartcrop-loaded')) return;
+      const img = picture.querySelector('img');
+      const src = img.getAttribute('src');
+      const extPicture = createOptimizedPictureWithSmartcrop(src);
+      picture.parentNode.replaceChild(extPicture, picture);
+    });
+  }
 }
 
 /**
