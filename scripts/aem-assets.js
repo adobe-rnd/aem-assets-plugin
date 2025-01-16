@@ -180,9 +180,9 @@ export function createOptimizedPictureWithSmartcrop(src, alt = '', eager = false
   return picture;
 }
 
-function hasDMImageSmartcropMeta() {
+function hasImageSmartcropMeta() {
   const metaTags = document.getElementsByTagName('meta');
-  const matchingMeta = Array.from(metaTags).find((meta) => meta.name === 'dm-image-smartcrop' && meta.content === 'true');
+  const matchingMeta = Array.from(metaTags).find((meta) => meta.name === 'smartcrop' && meta.content === 'true');
   return !!matchingMeta;
 }
 
@@ -198,8 +198,8 @@ export function decorateExternalImages(ele, deliveryMarker) {
   // check if smartcrop should be applied by checking page level
   // meta tag or class attribute or section level data attribute
   const renderImgSmartCrop = window.hlx?.aemassets?.smartCrops
-    && (hasDMImageSmartcropMeta() || ele.classList?.contains('dm-image-smartcrop')
-     || ele.getAttribute('data-dm-image-smartcrop') === 'true');
+    && (hasImageSmartcropMeta() || ele.classList?.contains('smartcrop')
+     || ele.getAttribute('data-smartcrop') === 'true');
 
   const extImages = ele.querySelectorAll('a');
   extImages.forEach((extImage) => {
@@ -207,7 +207,7 @@ export function decorateExternalImages(ele, deliveryMarker) {
       const extImageSrc = extImage.getAttribute('href');
       const extPicture = createOptimizedPicture(extImageSrc);
 
-      // except the samrtcrop param in <img>,
+      // except the smartcrop param in <img>,
       // query params are already copied to all source & img tags
       if (renderImgSmartCrop) {
         extImage.parentNode.replaceChild(extPicture, extImage);

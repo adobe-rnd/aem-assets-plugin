@@ -14,7 +14,7 @@ This block reduces overhead by rendering the appropriate smart crop asset variat
 
 ## Usages
 
-The Image Smart crop usecase is defined in such a way that it can be very well integrated at any level including site, page, block or section level. All user need to define is to add required cooresponding meta tag or classname or section metadata with key as `dm-image-smartcrop` with value as `true`.
+The Image Smart crop usecase is defined in such a way that it can be very well integrated at any level including site, page, block or section level. All user need to define is to add required cooresponding meta tag or classname or section metadata with key as `smartcrop` with value as `true`.
 
 ## Knowledge Base
 
@@ -49,16 +49,16 @@ Currently, it's not possible to get the smart crop references directly from the 
 
 Use the head.html and add below entry -
 ```
-<meta name="dm-image-smartcrop" content="true">
+<meta name="smartcrop" content="true">
 ```
 
 ### How to define samrtcrop rendering at webpage level?
 
-In content authoring, add page metadata with key as `dm-image-smartcrop` and value as `true`
+In content authoring, add page metadata with key as `smartcrop` and value as `true`
 
 ### How to define samrtcrop rendering at Block level?
 
-Add the class `dm-image-smartcrop` to the block while content authoring and then simply call `decorateExternalImages(block)` like shown below - 
+Add the class `smartcrop` to the block while content authoring and then simply call `decorateExternalImages(block)` like shown below - 
 ```
 export default function decorate(block) {
   decorateExternalImages(block);
@@ -67,4 +67,4 @@ export default function decorate(block) {
 
 ### How to define samrtcrop rendering at section level?
 
-In content authoring, add section metadata with key as `dm-image-smartcrop` and value as `true` and then explicitly call `decorateExternalImages(sectionElement);`
+In content authoring, add section metadata with key as `smartcrop` and value as `true` and then explicitly call `decorateExternalImages(sectionElement);`
