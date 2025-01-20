@@ -125,7 +125,7 @@ export function createOptimizedPicture(src, alt = '', eager = false, breakpoints
 
 /**
  * Creates an optimized picture element for an image
- * leveraging samrtcrop config from 'window.hlx.aemassets.smartCrops'.
+ * leveraging smartcrop config from 'window.hlx.aemassets.smartCrops'.
  * @param {string} src The image source URL
  * @param {string} alt The image alt text
  * @param {boolean} eager Whether to load the image eagerly
@@ -176,14 +176,58 @@ export function createOptimizedPictureWithSmartcrop(src, alt = '', eager = false
   url.searchParams.delete('smartcrop');
   img.setAttribute('src', url.toString());
 
-  picture.classList.add('smartcrop-loaded');
+  picture.classList.add('smartcrop');
   return picture;
 }
 
+/**
+ * to check if given src is a DM OpenAPI URL
+ */
+function isDMOpenAPIUrl(src) {
+  return /^(https?:\/\/(.*)\/adobe\/assets\/urn:aaid:aem:(.*))/gm.test(src);
+}
+
+/**
+ * to check if the page contains meta tag for smartcrop rendering
+ */
 function hasImageSmartcropMeta() {
   const metaTags = document.getElementsByTagName('meta');
   const matchingMeta = Array.from(metaTags).find((meta) => meta.name === 'smartcrop' && meta.content === 'true');
   return !!matchingMeta;
+}
+
+/**
+ * to filter out all the external images on the page and set data-smartcrop-status=loading
+ * if the image is a DM OpenAPI URL
+ */
+function filterSmartCropImagesOnPage() {
+  // Early return if smartcrop config is missing
+  if (window.hlx?.aemassets?.smartCrops === undefined) {
+    return;
+  }
+
+  // Collect all external images into an array
+  const extImages = [];
+
+  if (hasImageSmartcropMeta()) {
+    // If smartcrop is enabled at page level, collect all <a> tags
+    extImages.push(...document.querySelectorAll('a'));
+  } else {
+    // if not enabled at page level, collect all <a> tags within block and section elements
+    extImages.push(...document.querySelectorAll('.smartcrop a'));
+    document.querySelectorAll('.section-metadata div div').forEach((sectionMeta) => {
+      if (sectionMeta.innerText === 'smartcrop') {
+        extImages.push(...sectionMeta.closest('.section-metadata').parentElement.querySelectorAll('a'));
+      }
+    });
+  }
+
+  // Apply the data-smartcrop-status attribute to all collected images if a DM OpenAPI URL
+  extImages.forEach((extImage) => {
+    if (isDMOpenAPIUrl(extImage.getAttribute('href'))) {
+      extImage.setAttribute('data-smartcrop-status', 'loading');
+    }
+  });
 }
 
 /*
@@ -195,24 +239,23 @@ function hasImageSmartcropMeta() {
   * decorateExternalImages(main, '//External Image//');
   */
 export function decorateExternalImages(ele, deliveryMarker) {
-  // check if smartcrop should be applied by checking page level
-  // meta tag or class attribute or section level data attribute
-  const renderImgSmartCrop = window.hlx?.aemassets?.smartCrops
-    && (hasImageSmartcropMeta() || ele.classList?.contains('smartcrop')
-     || ele.getAttribute('data-smartcrop') === 'true');
+  // apply data-smartcrop-status=loading to all potential <a> tags
+  filterSmartCropImagesOnPage();
 
   const extImages = ele.querySelectorAll('a');
   extImages.forEach((extImage) => {
     if (isExternalImage(extImage, deliveryMarker)) {
-      const extImageSrc = extImage.getAttribute('href');
-      const extPicture = createOptimizedPicture(extImageSrc);
-
-      // except the smartcrop param in <img>,
-      // query params are already copied to all source & img tags
-      if (renderImgSmartCrop) {
+      // check if needs to render smartcrop
+      const renderSmartCrop = extImage.getAttribute('data-smartcrop-status');
+      if (renderSmartCrop === 'loading') {
+        const extPicture = createOptimizedPictureWithSmartcrop(extImage.getAttribute('href'));
+        extPicture.setAttribute('data-smartcrop-status', 'loaded');
         extImage.parentNode.replaceChild(extPicture, extImage);
         return;
       }
+
+      const extImageSrc = extImage.getAttribute('href');
+      const extPicture = createOptimizedPicture(extImageSrc);
 
       /* copy query params from link to img */
       const extImageUrl = new URL(extImageSrc);
@@ -233,19 +276,6 @@ export function decorateExternalImages(ele, deliveryMarker) {
       extImage.parentNode.replaceChild(extPicture, extImage);
     }
   });
-
-  // This would potentially repalce all exisiting picture tag with smartcrop loaded picture tag
-  // without this check, it would not account for block level smartcrop flag
-  if (renderImgSmartCrop) {
-    const pictureTags = ele.querySelectorAll('picture');
-    pictureTags.forEach((picture) => {
-      if (picture.classList.contains('smartcrop-loaded')) return;
-      const img = picture.querySelector('img');
-      const src = img.getAttribute('src');
-      const extPicture = createOptimizedPictureWithSmartcrop(src);
-      picture.parentNode.replaceChild(extPicture, picture);
-    });
-  }
 }
 
 /**

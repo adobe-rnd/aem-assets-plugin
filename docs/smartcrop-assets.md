@@ -45,26 +45,21 @@ Users can create an Image Profile in the AEM author environment with the desired
 
 Currently, it's not possible to get the smart crop references directly from the asset picker. Users need to obtain the base URL for any target asset. To get the smart crop variation, they must manually update the smart crop config file to match the presets defined in the Image Profile within the AEM author environment.
 
-### How to define samrtcrop rendering at Domain / website level?
+### How to define smartcrop rendering at Domain / website level?
 
 Use the head.html and add below entry -
 ```
 <meta name="smartcrop" content="true">
 ```
 
-### How to define samrtcrop rendering at webpage level?
+### How to define smartcrop rendering at webpage level?
 
 In content authoring, add page metadata with key as `smartcrop` and value as `true`
 
-### How to define samrtcrop rendering at Block level?
+### How to define smartcrop rendering at Block level?
 
-Add the class `smartcrop` to the block while content authoring and then simply call `decorateExternalImages(block)` like shown below - 
-```
-export default function decorate(block) {
-  decorateExternalImages(block);
-}
-```
+Add the class `smartcrop` to the block while content authoring.
 
-### How to define samrtcrop rendering at section level?
+### How to define smartcrop rendering at section level?
 
-In content authoring, add section metadata with key as `smartcrop` and value as `true` and then explicitly call `decorateExternalImages(sectionElement);`
+In content authoring, add section metadata with key as `smartcrop` and value as `true`.
