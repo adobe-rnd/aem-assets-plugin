@@ -47,9 +47,9 @@ Currently, it's not possible to get the smart crop references directly from the 
 
 ### How to define smartcrop rendering at Domain / website level?
 
-Use the head.html and add below entry -
+Use the [bulkmetadata](https://www.aem.live/docs/bulk-metadata) and set below for all paths.
 ```
-<meta name="smartcrop" content="true">
+key = "smartcrop" , value ="true"
 ```
 
 ### How to define smartcrop rendering at webpage level?
@@ -58,7 +58,7 @@ In content authoring, add page metadata with key as `smartcrop` and value as `tr
 
 ### How to define smartcrop rendering at Block level?
 
-Add the class `smartcrop` to the block while content authoring.
+Add the block modifier `smartcrop` to the block while content authoring. For e.g. `cards(smartcrop)`
 
 ### How to define smartcrop rendering at section level?
 
