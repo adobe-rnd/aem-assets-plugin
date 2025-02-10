@@ -141,7 +141,7 @@ export function createOptimizedPictureWithSmartcrop(src, alt = '', eager = false
 
   // initialise breakpoint to project level smartcrop config unless needed to customise
   const smartcropBreakpoints = breakpoints.length !== 0 ? breakpoints
-  : Object.entries(window.hlx.aemassets?.smartCrops).map(
+    : Object.entries(window.hlx.aemassets?.smartCrops).map(
       ([name, { minWidth, maxWidth }]) => ({
         media: `(min-width: ${minWidth}px) and (max-width: ${maxWidth}px)`,
         smartcrop: name,
