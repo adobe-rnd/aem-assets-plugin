@@ -298,7 +298,9 @@ export function decorateImagesFromAlt(ele = document) {
         return;
       }
 
-      const newPictureElement = createOptimizedPictureWithSmartcrop(deliveryUrl, altText);
+      const newPictureElement = isDMOpenAPIUrl(deliveryUrl)
+        ? createOptimizedPictureWithSmartcrop(deliveryUrl, altText)
+        : createOptimizedPicture(deliveryUrl, altText);
       pictureElement.parentElement.replaceChild(newPictureElement, pictureElement);
     } catch (error) {
       // Do nothing
@@ -349,6 +351,7 @@ export async function loadBlock(block) {
 // Create an object with the test functions
 const testFunctions = {
   appendQueryParams,
+  decorateImagesFromAlt,
 };
 
 // Export the object
