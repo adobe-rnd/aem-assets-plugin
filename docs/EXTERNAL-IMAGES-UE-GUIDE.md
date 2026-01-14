@@ -54,7 +54,7 @@ Before you begin, ensure you have:
 
 External image URL retention is an **opt-in feature** that must be enabled by Adobe for your organization/site. This prevents the Universal Editor from converting external image URLs to `/media_*` paths during authoring.
 
-> **📖 For complete enablement instructions and examples**, see the [How to Enable Retention of External Image URLs Feature](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#how-to-enable-retention-of-external-image-urls-feature) section in the plugin README.
+> **📖 For complete enablement instructions and examples**, see the [How to Enable Retention of External Image URLs Feature](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#retention-of-external-image-urls) section in the plugin README.
 
 **Additional Resource:**
 
