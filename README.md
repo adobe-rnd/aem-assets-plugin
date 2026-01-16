@@ -18,7 +18,7 @@ And you need to have pre-configured:
 
 ## Retention of External Image URLs
 
-When using AEM Assets delivered through Dynamic Media with OpenAPI (DMwOAPI) or Scene7, you can configure your project to retain external image URLs instead of rewriting them to internal `/media_*` paths. This enables you to leverage advanced Dynamic Media features and optimized delivery.
+You can configure your project to retain external image URLs instead of rewriting them to internal `/media_*` paths. This is particularly useful for assets delivered through Dynamic Media with OpenAPI (DMwOAPI), Scene7, or any other external image delivery service, as it enables you to leverage their advanced features and optimized delivery capabilities.
 
 ### Implementation Options
 
