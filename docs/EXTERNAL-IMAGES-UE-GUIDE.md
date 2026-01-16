@@ -21,11 +21,9 @@ This guide explains how to configure and use external image URLs from AEM Assets
 
 In Universal Editor, when you insert images from AEM Assets with external URLs (Dynamic Media, Scene7, etc.), they are rendered OOTB as **anchor tags (`<a>`)** pointing to the image URL. For better page optimization and responsive image delivery, these can be converted to **`<img>` tags** with external URLs (instead of converting them to `/media_*` paths).
 
-> **📖 For detailed information about External Image URL Retention**, see the [Retention of External Image URLs](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#retention-of-external-image-urls) section in the plugin README.
-
 To leverage this optimization and responsive image delivery, you need to:
 
-1. **Enable `externalImageUrlPrefixes` feature** (via Adobe support) to retain external URLs as `<img>` tags - [See how to enable](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#how-to-enable-retention-of-external-image-urls-feature)
+1. **Enable `externalImageUrlPrefixes` feature** (via Adobe support) to retain external URLs as `<img>` tags
 2. **Configure component model** to use Standard Edge Delivery flow
 3. **Decorate `<img>` tags** into `<picture>` elements using the [AEM Assets Plugin](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md)
 
@@ -54,11 +52,30 @@ Before you begin, ensure you have:
 
 External image URL retention is an **opt-in feature** that must be enabled by Adobe for your organization/site. This prevents the Universal Editor from converting external image URLs to `/media_*` paths during authoring.
 
-> **📖 For complete enablement instructions and examples**, see the [How to Enable Retention of External Image URLs Feature](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#retention-of-external-image-urls) section in the plugin README.
+### 📝 How to Request Enablement
 
-**Additional Resource:**
+**1. Gather the following information:**
+
+- **Site name** (e.g., `franklin-assets-selector`)
+- **Organization name** (e.g., `hlxsites`)
+- **List of Image Delivery URL prefixes** to retain:
+  - Your Dynamic Media OpenAPI delivery URLs
+  - Scene7 URLs (if applicable)
+  - Any other external image domains
+
+**Example:**
+```
+https://delivery-p66302-e574366.adobeaemcloud.com/
+https://s7ap1.scene7.com/is/image/varuncloudready/
+```
+
+**2. Submit a request** following the process outlined here:
 
 📖 **[Opt-In Retention of External Image URLs - Adobe DAM Wiki](https://wiki.corp.adobe.com/display/AdobeDAM/Opt-In+Retention+of+External+Image+URLs)**
+
+```
+
+**4. Wait for confirmation** from Adobe that the feature has been enabled for your site.
 
 ### ⚙️ Configure Component Model
 
@@ -240,7 +257,7 @@ On this page, you'll see:
    📖 **Reference:** [Adobe Developer - Component Model Structures](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/#component-model-in-component-modelsjson-to-leverage-standard-edge-delivery)
 
 2. **Confirm feature enablement**
-   - Verify Adobe has enabled the feature for your org/site ([see enablement process](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#how-to-enable-retention-of-external-image-urls-feature))
+   - Verify Adobe has enabled the feature for your org/site
    - Check confirmation email or ticket status
    - Contact Adobe support if not confirmed
 
@@ -340,8 +357,6 @@ On this page, you'll see:
 ### 📚 Documentation
 
 - **[AEM Assets Plugin README](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md)** - Complete plugin documentation
-- **[Retention of External Image URLs](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#retention-of-external-image-urls)** - Detailed explanation of the retention feature
-- **[How to Enable Retention Feature](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#how-to-enable-retention-of-external-image-urls-feature)** - Step-by-step enablement instructions
 - **[Opt-In Retention of External Image URLs](https://wiki.corp.adobe.com/display/AdobeDAM/Opt-In+Retention+of+External+Image+URLs)** - Internal Adobe wiki for feature enablement
 - **[Dynamic Media Open API Overview](https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/assets/dynamicmedia/dynamic-media-open-apis/dynamic-media-open-apis-overview)** - DMwOAPI documentation
 - **[Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/)** - Asset picker configuration
