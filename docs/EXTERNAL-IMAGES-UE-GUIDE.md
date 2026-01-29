@@ -69,13 +69,9 @@ https://delivery-p66302-e574366.adobeaemcloud.com/
 https://s7ap1.scene7.com/is/image/varuncloudready/
 ```
 
-**2. Submit a request** following the process outlined here:
+**2. Submit a request** to Adobe following your organization's process for feature enablement.
 
-📖 **[Opt-In Retention of External Image URLs - Adobe DAM Wiki](https://wiki.corp.adobe.com/display/AdobeDAM/Opt-In+Retention+of+External+Image+URLs)**
-
-```
-
-**4. Wait for confirmation** from Adobe that the feature has been enabled for your site.
+**3. Wait for confirmation** from Adobe that the feature has been enabled for your site.
 
 ### ⚙️ Configure Component Model
 
@@ -357,7 +353,6 @@ On this page, you'll see:
 ### 📚 Documentation
 
 - **[AEM Assets Plugin README](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md)** - Complete plugin documentation
-- **[Opt-In Retention of External Image URLs](https://wiki.corp.adobe.com/display/AdobeDAM/Opt-In+Retention+of+External+Image+URLs)** - Internal Adobe wiki for feature enablement
 - **[Dynamic Media Open API Overview](https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/assets/dynamicmedia/dynamic-media-open-apis/dynamic-media-open-apis-overview)** - DMwOAPI documentation
 - **[Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/)** - Asset picker configuration
 
