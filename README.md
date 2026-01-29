@@ -13,8 +13,7 @@ The AEM Assets Plugin helps you quickly integrate with AEM Assets for your AEM p
 
 And you need to have pre-configured:
 - [AEM Assets Sidekick plugin](https://www.aem.live/docs/aem-assets-sidekick-plugin) if using Doc based authoring OR
-- [Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/) if using Universal Editor based authoring
-- While adding custom components in your custom asset picker make sure `imageMimeType` is not present in the custom component model to leverage Dynamic Media Delivery Capabilities 
+- [Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/) if using Universal Editor based authoring 
 
 ## Retention of External Image URLs
 
