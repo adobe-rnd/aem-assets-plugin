@@ -13,31 +13,36 @@ The AEM Assets Plugin helps you quickly integrate with AEM Assets for your AEM p
 
 And you need to have pre-configured:
 - [AEM Assets Sidekick plugin](https://www.aem.live/docs/aem-assets-sidekick-plugin) if using Doc based authoring OR
-- [Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/) if using Universal Editor based authoring
-- While adding custom components in your custom asset picker make sure `imageMimeType` is not present in the custom component model to leverage Dynamic Media Delivery Capabilities 
+- [Universal Editor Custom Asset Picker](https://developer.adobe.com/uix/docs/extension-manager/extension-developed-by-adobe/configurable-asset-picker/) if using Universal Editor based authoring 
 
 ## Retention of External Image URLs
-When converting HTML documents to Markdown, images are typically processed and their URLs rewritten for internal delivery (e.g., via /media_...). For Adobe Experience Manager (AEM) assets delivered through Dynamic Media with open API (DMwOAPI) or Scene7, rewriting these URLs can prevent the use of advanced features provided by DMwOAPI.
 
-This feature allows you to configure prefixes for external asset url's, so images with matching URLs are retained in the Markdown output, while all other images are processed as usual
+You can configure your project to retain external image URLs instead of rewriting them to internal `/media_*` paths. This is particularly useful for assets delivered through Dynamic Media with OpenAPI (DMwOAPI), Scene7, or any other external image delivery service, as it enables you to leverage their advanced features and optimized delivery capabilities.
 
-## How to Enable Retention of External Image URLs Feature 
-This feature is opt-in and must be enabled by Adobe for your organization/site.
+### Implementation Options
 
-Note:
-The `externalImageUrlPrefixes` feature is currently supported only with Universal Editor (UE)-based authoring modes, including Dark Alley and xwalk.
-If you are using document-based authoring, this feature will not retain external asset URLs OOTB at page source level however it can still be rewritten at Project level via [adding the Assets Plugin](https://github.com/adobe-rnd/aem-assets-plugin/blob/main/README.md#installation) to your EDS project.
-To request this feature, reach out to Adobe and provide the following information:
+The implementation approach depends on your authoring mode:
 
-`site-name`, `org-name`, `List of Image Delivery URL prefixes to retain`
+#### 1. **Universal Editor (UE) Based Authoring**
+   For projects using Universal Editor (including Dark Alley and xwalk), you can enable the `externalImageUrlPrefixes` feature to retain external URLs at the page source level.
+   
+   📖 **[Complete UE Implementation Guide](docs/EXTERNAL-IMAGES-UE-GUIDE.md)** - Detailed instructions for enabling feature flags, configuring component models, and setting up the plugin for Universal Editor authoring.
 
-Example: 
+#### 2. **Document-Based Authoring**
+   For projects using document-based authoring (Google Docs/SharePoint), external URLs are not retained at the page source level OOTB. However, you can achieve the same result by configuring the Assets Plugin at the project level to decorate images client-side.
+   
+   📖 **[Complete Doc-Based Implementation Guide](docs/EXTERNAL-IMAGES-DOC-AUTHORING.md)** - Step-by-step instructions for configuring the plugin to handle external images in document-based authoring.
 
-`site-name` : hac-poc,  
-`org-name` : adobeorg,   
-`List of Image Delivery URL prefixes to retain` : ['https://delivery-p66302-e574366.adobeaemcloud.com/, 'https://s7ap1.scene7.com/is/image/varuncloudready/']  
+### Quick Start
 
-Adobe will enable this feature for your specified site and organization. Once enabled, images matching the provided prefix will be retained as external URLs as described above. 
+Both implementation guides cover:
+- ✅ Prerequisites and feature enablement
+- ✅ Configuration steps
+- ✅ Plugin installation and setup
+- ✅ Troubleshooting common issues
+- ✅ Live examples
+
+Choose the guide that matches your authoring mode and follow the detailed instructions provided. 
 
 
 ## Installation
