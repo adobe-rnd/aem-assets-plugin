@@ -23,12 +23,7 @@ You can configure your project to retain external image URLs instead of rewritin
 
 The implementation approach depends on your authoring mode:
 
-#### 1. **Universal Editor (UE) Based Authoring**
-   For projects using Universal Editor (including Dark Alley and xwalk), you can enable the `externalImageUrlPrefixes` feature to retain external URLs at the page source level.
-   
-   📖 **[Complete UE Implementation Guide](docs/EXTERNAL-IMAGES-UE-GUIDE.md)** - Detailed instructions for enabling feature flags, configuring component models, and setting up the plugin for Universal Editor authoring.
-
-#### 2. **Document-Based Authoring**
+#### 1. **Document-Based Authoring**
    For projects using document-based authoring (Google Docs/SharePoint), external URLs are not retained at the page source level OOTB. However, you can achieve the same result by configuring the Assets Plugin at the project level to decorate images client-side.
    
    📖 **[Complete Doc-Based Implementation Guide](docs/EXTERNAL-IMAGES-DOC-AUTHORING.md)** - Step-by-step instructions for configuring the plugin to handle external images in document-based authoring.
