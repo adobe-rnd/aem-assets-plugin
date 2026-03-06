@@ -1,5 +1,7 @@
 # Retaining External Image URLs in Universal Editor (UE) Based Authoring
 
+> NOTE: The `externalImageUrlPrefixes` feature is no longer supported. Images will be imported into the EDS Media Bus
+
 This guide explains how to configure and use external image URLs from AEM Assets (Dynamic Media with OpenAPI) in Universal Editor based authoring, ensuring images are retained as external URLs and properly decorated on the project code side.
 
 ---
