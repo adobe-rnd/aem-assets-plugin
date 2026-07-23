@@ -106,7 +106,12 @@ function createWebOptimizedDMOpenAPIUrl(url) {
  */
 function getImageSrcUrlAndAlt(element) {
   if (element.tagName === 'A') {
-    return { url: element.getAttribute('href'), alt: element.getAttribute('title') || '' };
+    const href = element.getAttribute('href');
+    const text = element.textContent?.trim() || '';
+    // Fall back to the link's own text as alt text, unless it's just the raw URL
+    // (e.g. a pasted link with no author-supplied text), since that's not usable alt text.
+    const textAlt = text && text !== href ? text : '';
+    return { url: href, alt: element.getAttribute('title') || textAlt };
   }
 
   if (element.tagName === 'IMG') {
@@ -650,6 +655,7 @@ export async function loadBlock(block) {
 // Create an object with the test functions
 const testFunctions = {
   appendQueryParams,
+  getImageSrcUrlAndAlt,
 };
 
 // Export the object
