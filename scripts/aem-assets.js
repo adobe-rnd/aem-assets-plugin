@@ -588,23 +588,45 @@ export function decorateExternalImages(ele) {
 
       if (!extImageSrc) return; // Skip if no source found
 
-      // Use the provided picture creator function to create the picture element
-      const useSmartcrop = renderSmartCrop === 'loading';
-      const extPicture = createOptimizedPictureHandler(extImageSrc, alt, useSmartcrop);
-
-      /* copy query params from link to img */
+      // Approach B authors this as an <a>, so helix-html-pipeline never builds an <img> for
+      // it server-side - reading the intrinsic width/height here (set by the asset picker as
+      // no-op query params) and applying them to the built <img> is the only place CLS gets
+      // prevented for these images. Stripped from the URL before the handler builds the
+      // delivery URL so they don't leak through as literal query params, mirroring
+      // helix-html-pipeline's server-side createExternalPicture(). Skipped under Smart Crop:
+      // the crop changes the effective delivered dimensions, so the original asset
+      // width/height would give the wrong aspect ratio.
       const extImageUrl = new URL(extImageSrc);
       const { searchParams } = extImageUrl;
+      const width = searchParams.get('originalImageWidth');
+      const height = searchParams.get('originalImageHeight');
+      searchParams.delete('originalImageWidth');
+      searchParams.delete('originalImageHeight');
+      const cleanedImageSrc = extImageUrl.toString();
+
+      // Use the provided picture creator function to create the picture element
+      const useSmartcrop = renderSmartCrop === 'loading';
+      const extPicture = createOptimizedPictureHandler(cleanedImageSrc, alt, useSmartcrop);
+
+      if (!useSmartcrop && width && height) {
+        const img = extPicture.querySelector('img');
+        if (img) {
+          img.setAttribute('width', width);
+          img.setAttribute('height', height);
+        }
+      }
+
+      /* copy query params from link to img */
       extPicture.querySelectorAll('source, img').forEach((child) => {
         if (child.tagName === 'SOURCE') {
           const srcset = child.getAttribute('srcset');
           if (srcset) {
-            child.setAttribute('srcset', appendQueryParams(new URL(srcset, extImageSrc), searchParams));
+            child.setAttribute('srcset', appendQueryParams(new URL(srcset, cleanedImageSrc), searchParams));
           }
         } else if (child.tagName === 'IMG') {
           const src = child.getAttribute('src');
           if (src) {
-            child.setAttribute('src', appendQueryParams(new URL(src, extImageSrc), searchParams));
+            child.setAttribute('src', appendQueryParams(new URL(src, cleanedImageSrc), searchParams));
           }
         }
       });
