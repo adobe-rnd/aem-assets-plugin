@@ -5,7 +5,7 @@ let placeholderImg;
  * to check if given src is a DM OpenAPI URL
  */
 function isDMOpenAPIUrl(src) {
-  return /^(https?:\/\/(.*)\/adobe\/assets\/urn:aaid:aem:(.*))/gm.test(src);
+  return /^(https?:\/\/[^/]+\/(?:.*\/)?assets\/urn:(?:aaid|avid):aem:(.*))/gm.test(src);
 }
 
 /**
@@ -81,6 +81,13 @@ function isJWTTokenValid(token) {
   }
   return isValid;
 }
+
+// Create an object with the test functions
+const testFunctions = {
+  isDMOpenAPIUrl,
+};
+
+export { testFunctions };
 
 export default function decorate(block) {
   placeholderImg = document.querySelector('.secure-assets-container')?.getAttribute('data-placeholder-image');

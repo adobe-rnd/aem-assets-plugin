@@ -496,7 +496,7 @@ export function createOptimizedPictureForDMOpenAPI(
  * @private
  */
 function isDMOpenAPIUrl(src) {
-  return /^(https?:\/\/(.*)\/adobe\/assets\/urn:aaid:aem:(.*))/gm.test(src);
+  return /^(https?:\/\/[^/]+\/(?:.*\/)?assets\/urn:(?:aaid|avid):aem:(.*))/gm.test(src);
 }
 
 /**
@@ -678,6 +678,7 @@ export async function loadBlock(block) {
 const testFunctions = {
   appendQueryParams,
   getImageSrcUrlAndAlt,
+  isDMOpenAPIUrl,
 };
 
 // Export the object
