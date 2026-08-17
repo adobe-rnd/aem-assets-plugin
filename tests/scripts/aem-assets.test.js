@@ -1,7 +1,11 @@
 /* eslint-env jest */
-import { testFunctions } from '../../scripts/aem-assets.js';
+import {
+  testFunctions,
+  decorateExternalImages,
+  createOptimizedPictureForDM,
+} from '../../scripts/aem-assets.js';
 
-const { appendQueryParams } = testFunctions;
+const { appendQueryParams, getImageSrcUrlAndAlt, isDMOpenAPIUrl } = testFunctions;
 // scripts/aem-assets.test.js
 
 describe('appendQueryParams', () => {
@@ -31,5 +35,136 @@ describe('appendQueryParams', () => {
     const params = new Map([['rotate', '90']]);
     const result = appendQueryParams(url, params);
     expect(result).toBe('https://example.com/?existing=param&rotate=90');
+  });
+});
+
+describe('getImageSrcUrlAndAlt', () => {
+  function anchor(href, text, title) {
+    const a = document.createElement('a');
+    a.setAttribute('href', href);
+    if (title !== undefined) a.setAttribute('title', title);
+    a.textContent = text ?? '';
+    return a;
+  }
+
+  it('should use the title attribute when present', () => {
+    const a = anchor('https://example.com/asset.jpg', 'link text', 'a title');
+    expect(getImageSrcUrlAndAlt(a)).toEqual({ url: 'https://example.com/asset.jpg', alt: 'a title' });
+  });
+
+  it('should fall back to the link text when there is no title attribute', () => {
+    const a = anchor('https://example.com/asset.jpg', 'blue car with black wheels');
+    expect(getImageSrcUrlAndAlt(a)).toEqual({
+      url: 'https://example.com/asset.jpg',
+      alt: 'blue car with black wheels',
+    });
+  });
+
+  it('should not use the link text as alt when it is just the raw URL', () => {
+    const a = anchor('https://example.com/asset.jpg', 'https://example.com/asset.jpg');
+    expect(getImageSrcUrlAndAlt(a)).toEqual({ url: 'https://example.com/asset.jpg', alt: '' });
+  });
+
+  it('should return empty alt when there is no title and no text', () => {
+    const a = anchor('https://example.com/asset.jpg', '');
+    expect(getImageSrcUrlAndAlt(a)).toEqual({ url: 'https://example.com/asset.jpg', alt: '' });
+  });
+});
+
+describe('decorateExternalImages - intrinsic width/height for Approach B anchors', () => {
+  const PREFIX = 'https://delivery-p12345-e123456.adobeaemcloud.com/';
+
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    window.hlx = {
+      aemassets: {
+        externalImageUrlPrefixes: [[PREFIX, createOptimizedPictureForDM]],
+      },
+    };
+  });
+
+  it('sets width/height on the built img from originalImageWidth/Height and strips them from the delivered URL', () => {
+    document.body.innerHTML = `<div id="main"><a href="${PREFIX}adobe/assets/urn:aaid:aem:123/as/photo.jpg?originalImageWidth=800&originalImageHeight=600">a photo</a></div>`;
+    const main = document.getElementById('main');
+
+    decorateExternalImages(main);
+
+    const img = main.querySelector('picture img');
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('width')).toBe('800');
+    expect(img.getAttribute('height')).toBe('600');
+    expect(img.getAttribute('src')).not.toMatch(/originalImage(Width|Height)/);
+    main.querySelectorAll('picture source').forEach((source) => {
+      expect(source.getAttribute('srcset')).not.toMatch(/originalImage(Width|Height)/);
+    });
+  });
+
+  it('does not set width/height when neither is present on the anchor href', () => {
+    document.body.innerHTML = `<div id="main"><a href="${PREFIX}adobe/assets/urn:aaid:aem:123/as/photo.jpg">a photo</a></div>`;
+    const main = document.getElementById('main');
+
+    decorateExternalImages(main);
+
+    const img = main.querySelector('picture img');
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('width')).toBeNull();
+    expect(img.getAttribute('height')).toBeNull();
+  });
+
+  it('skips setting width/height when Smart Crop applies to the image', () => {
+    window.hlx.aemassets.smartCrops = { mobile: { minWidth: 0, maxWidth: 900 } };
+    document.body.innerHTML = `<div id="main" class="smartcrop"><a href="${PREFIX}adobe/assets/urn:aaid:aem:123/original/as/photo.jpg?originalImageWidth=800&originalImageHeight=600">a photo</a></div>`;
+    const main = document.getElementById('main');
+
+    decorateExternalImages(main);
+
+    const img = main.querySelector('picture img');
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('width')).toBeNull();
+    expect(img.getAttribute('height')).toBeNull();
+    // still stripped from the delivered URL even when Smart Crop skips the attributes
+    expect(img.getAttribute('src')).not.toMatch(/originalImage(Width|Height)/);
+  });
+});
+
+describe('isDMOpenAPIUrl', () => {
+  it('should match the original /adobe/assets/urn:aaid:aem: pattern', () => {
+    const url = 'https://delivery-p66302-e574366.adobeaemcloud.com/adobe/assets/urn:aaid:aem:9ead338d-4ac8-483a-a1cd-a3c7dfe9f437/original/as/article_01_hero.png';
+    expect(isDMOpenAPIUrl(url)).toBe(true);
+  });
+
+  it('should match when the path prefix before /assets/ is not /adobe', () => {
+    const url = 'https://example.com/abcd/def/assets/urn:aaid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(true);
+  });
+
+  it('should match a single arbitrary path segment before /assets/', () => {
+    const url = 'https://example.com/maruti/assets/urn:aaid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(true);
+  });
+
+  it('should match urn:avid:aem: in addition to urn:aaid:aem:', () => {
+    const url = 'https://example.com/maruti/assets/urn:avid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(true);
+  });
+
+  it('should match when /assets/ appears with no path prefix', () => {
+    const url = 'https://example.com/assets/urn:aaid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(true);
+  });
+
+  it('should reject urn types other than aaid or avid', () => {
+    const url = 'https://example.com/adobe/assets/urn:xyz:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(false);
+  });
+
+  it('should reject URLs missing the /assets/ segment', () => {
+    const url = 'https://example.com/adobe/foo/urn:aaid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(false);
+  });
+
+  it('should reject non-http(s) URLs', () => {
+    const url = 'ftp://example.com/adobe/assets/urn:aaid:aem:1234/as/hero.avif';
+    expect(isDMOpenAPIUrl(url)).toBe(false);
   });
 });
